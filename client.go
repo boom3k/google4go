@@ -1,4 +1,4 @@
-package client
+package google4go
 
 import (
 	"context"
@@ -81,9 +81,9 @@ func ParseOauth2Token(tokenFileData []byte) *oauth2.Token {
 }
 
 // GetServiceInitiatorFromNestedFunction Used with a passed function to return service initiation parameters
-func GetServiceInitiatorFromNestedFunction(clientFunction func() *http.Client) (context.Context, option.ClientOption) {
+func GetServiceInitiatorFromNestedFunction(initClient func() *http.Client) (context.Context, option.ClientOption) {
 	ctx := context.Background()
-	opt := option.WithHTTPClient(clientFunction())
+	opt := option.WithHTTPClient(initClient())
 	return ctx, opt
 }
 
