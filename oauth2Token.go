@@ -61,3 +61,13 @@ func ParseFromFile(tokenFileData []byte) (*oauth2.Token, error) {
 	err := json.Unmarshal(tokenFileData, token)
 	return token, err
 }
+
+// ParseFromPath Used to pase token from file path
+func ParseFromPath(filepath string) (*oauth2.Token, error) {
+	data, err := os.ReadFile(filepath)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFromFile(data)
+
+}
