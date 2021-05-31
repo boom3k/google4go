@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-var client = &http.Client{}
+var globalClient = &http.Client{}
 
 // InitializeOauth2Client Used for Oauth2 authorized clients
 func InitializeOauth2Client(clientSecretFile []byte, token *oauth2.Token, scopes []string) (*http.Client, error) {
@@ -18,7 +18,7 @@ func InitializeOauth2Client(clientSecretFile []byte, token *oauth2.Token, scopes
 		log.Println(err.Error())
 		return nil, err
 	}
-	client = oauth2.Client(context.Background(), token)
+	globalClient = oauth2.Client(context.Background(), token)
 	return oauth2.Client(context.Background(), token), nil
 }
 
@@ -30,7 +30,7 @@ func InitializeServiceAccountClient(subject string, serviceAccountFile []byte, s
 		return nil, err
 	}
 	jwt.Subject = subject
-	client = jwt.Client(context.Background())
+	globalClient = jwt.Client(context.Background())
 	return jwt.Client(context.Background()), nil
 }
 
@@ -43,11 +43,11 @@ func ServiceInitiatorFromNestedFunction(initClient func() *http.Client) (context
 
 // ServiceInitiator Used with a pre initiated client to return service initiation parameters
 func ServiceInitiator() (context.Context, option.ClientOption) {
-	if client == nil {
+	if globalClient == nil {
 		log.Fatalln("Client not initiated..")
 		return nil, nil
 	}
 	ctx := context.Background()
-	opt := option.WithHTTPClient(client)
+	opt := option.WithHTTPClient(globalClient)
 	return ctx, opt
 }
