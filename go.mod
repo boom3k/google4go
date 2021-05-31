@@ -1,4 +1,4 @@
-module google4go
+module github.com/boom3k/google4go
 
 go 1.16
 
