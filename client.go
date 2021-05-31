@@ -2,11 +2,15 @@ package google4go
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"github.com/boom3k/utils4go"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 	"log"
 	"net/http"
+	"os"
 )
 
 var globalClient = &http.Client{}
@@ -50,4 +54,65 @@ func ServiceInitiator() (context.Context, option.ClientOption) {
 	ctx := context.Background()
 	opt := option.WithHTTPClient(globalClient)
 	return ctx, opt
+}
+
+// GenerateToken Used to generate authorized Oauth2 tokens
+func GenerateToken(oauth2ConfigFile []byte, scopes []string) (*oauth2.Token, error) {
+	oauth2Config, err := google.ConfigFromJSON(oauth2ConfigFile, scopes...)
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
+	authenticationURL := oauth2Config.AuthCodeURL("state-oauth2Token", oauth2.ApprovalForce)
+	fmt.Println("Go to the following link in your browser then type the authorization code:", authenticationURL)
+	code := utils4go.Readline("Enter the code:")
+	token, err := oauth2Config.Exchange(context.TODO(), code)
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
+	return token, nil
+}
+
+// WriteToken Used to save oauth2 token files
+func WriteToken(token oauth2.Token, newFileName string, encryptFile bool) (oauth2.Token, []byte, error) {
+	tokenJson, err := json.Marshal(token)
+	if err != nil {
+		log.Println(err.Error())
+		return token, nil, nil
+	}
+
+	if encryptFile {
+		tempFileName := "temp.bat"
+		err := os.WriteFile(tempFileName, tokenJson, os.ModePerm)
+		if err != nil {
+			log.Println(err.Error())
+			return token, nil, nil
+		}
+
+		_, err = utils4go.EncryptFile(tempFileName, utils4go.GeneratePassword(), true)
+		if err != nil {
+			log.Println(err.Error())
+			return token, nil, nil
+		}
+		return token, tokenJson, err
+	}
+	return token, tokenJson, os.WriteFile(newFileName, tokenJson, os.ModePerm)
+}
+
+// ParseToken Used to parse token file data into a oauth2 token
+func ParseToken(tokenFileData []byte) (*oauth2.Token, error) {
+	token := &oauth2.Token{}
+	err := json.Unmarshal(tokenFileData, token)
+	return token, err
+}
+
+// ParseTokenFromPath Used to pase token from file path
+func ParseTokenFromPath(filepath string) (*oauth2.Token, error) {
+	data, err := os.ReadFile(filepath)
+	if err != nil {
+		return nil, err
+	}
+	return ParseToken(data)
+
 }
