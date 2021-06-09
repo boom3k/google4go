@@ -45,8 +45,8 @@ func ServiceInitiatorFromNestedFunction(initClient func() *http.Client) (context
 	return ctx, opt
 }
 
-// ServiceInitiator Used with a pre initiated client to return service initiation parameters
-func ServiceInitiator() (context.Context, option.ClientOption) {
+// ServiceInitializer Used with a pre initiated client to return service initiation parameters
+func ServiceInitializer() (context.Context, option.ClientOption) {
 	if globalClient == nil {
 		log.Fatalln("Client not initiated..")
 		return nil, nil
