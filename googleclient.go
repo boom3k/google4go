@@ -123,13 +123,13 @@ func WriteToken(token oauth2.Token, newFileName string, encryptFile bool) (oauth
 			return token, nil, err
 		}
 
-		_, err = utils4go.EncryptFile(tempFileName, "1234567890123456", true)
+		_, err = utils4go.EncryptFile(tempFileName, utils4go.GeneratePassword(), true)
 		if err != nil {
 			log.Println(err.Error())
 			return token, nil, err
 		}
 
-		return token, tokenJson, os.Rename(tempFileName,newFileName)
+		return token, tokenJson, os.Rename(tempFileName, newFileName)
 	}
 	return token, tokenJson, os.WriteFile(newFileName, tokenJson, os.ModePerm)
 }
