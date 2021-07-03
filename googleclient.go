@@ -13,7 +13,6 @@ import (
 	"os"
 )
 
-
 var AdminScopes = []string{
 	"https://www.googleapis.com/auth/admin.reports.audit.readonly",
 	"https://www.googleapis.com/auth/admin.reports.usage.readonly",
@@ -121,15 +120,16 @@ func WriteToken(token oauth2.Token, newFileName string, encryptFile bool) (oauth
 		err := os.WriteFile(tempFileName, tokenJson, os.ModePerm)
 		if err != nil {
 			log.Println(err.Error())
-			return token, nil, nil
+			return token, nil, err
 		}
 
-		_, err = utils4go.EncryptFile(tempFileName, utils4go.GeneratePassword(), true)
+		_, err = utils4go.EncryptFile(tempFileName, "1234567890123456", true)
 		if err != nil {
 			log.Println(err.Error())
-			return token, nil, nil
+			return token, nil, err
 		}
-		return token, tokenJson, err
+
+		return token, tokenJson, os.Rename(tempFileName,newFileName)
 	}
 	return token, tokenJson, os.WriteFile(newFileName, tokenJson, os.ModePerm)
 }
