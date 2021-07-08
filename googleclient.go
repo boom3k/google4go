@@ -18,6 +18,7 @@ var AdminScopes = []string{
 	"https://www.googleapis.com/auth/admin.reports.usage.readonly",
 	"https://www.googleapis.com/auth/admin.directory.user",
 	"https://www.googleapis.com/auth/admin.directory.group.member",
+	"https://www.googleapis.com/auth/admin.directory.user.security",
 	"https://www.googleapis.com/auth/admin.directory.group",
 	"https://www.googleapis.com/auth/admin.directory.customer",
 	"https://www.googleapis.com/auth/admin.directory.resource.calendar",
