@@ -47,7 +47,8 @@ var ServiceAccountScopes = []string{
 	"https://www.googleapis.com/auth/gmail.settings.sharing",
 }
 
-var globalClient = &http.Client{}
+var Oauth2HttpClient = &http.Client{}
+var ServiceAccountHttpClient = &http.Client{}
 
 // InitializeOauth2Client Used for Oauth2 authorized clients
 func InitializeOauth2Client(clientSecretFile []byte, token *oauth2.Token, scopes []string) (*http.Client, error) {
@@ -56,7 +57,7 @@ func InitializeOauth2Client(clientSecretFile []byte, token *oauth2.Token, scopes
 		log.Println(err.Error())
 		return nil, err
 	}
-	globalClient = oauth2.Client(context.Background(), token)
+	Oauth2HttpClient = oauth2.Client(context.Background(), token)
 	return oauth2.Client(context.Background(), token), nil
 }
 
@@ -68,7 +69,7 @@ func InitializeServiceAccountClient(subject string, serviceAccountFile []byte, s
 		return nil, err
 	}
 	jwt.Subject = subject
-	globalClient = jwt.Client(context.Background())
+	ServiceAccountHttpClient = jwt.Client(context.Background())
 	return jwt.Client(context.Background()), nil
 }
 
@@ -79,14 +80,37 @@ func ServiceInitiatorFromNestedFunction(initClient func() *http.Client) (context
 	return ctx, opt
 }
 
-// ServiceInitializer Used with a pre initiated client to return service initiation parameters
-func ServiceInitializer() (context.Context, option.ClientOption) {
-	if globalClient == nil {
+// NewOauth2HTTPInitializer Used to pass directly into a *.NewService() function
+func NewOauth2HTTPInitializer(clientSecretFile []byte, token *oauth2.Token, scopes []string) (context.Context, option.ClientOption) {
+	InitializeOauth2Client(clientSecretFile, token, scopes)
+	return Oauth2ApiInitializer()
+}
+
+// NewServiceAccountHTTPInitializer NewServiceAccountHTTPInitializer Used to pass directly into a *.NewService() function
+func NewServiceAccountHTTPInitializer(subject string, serviceAccountFile []byte, scopes []string) (context.Context, option.ClientOption) {
+	InitializeServiceAccountClient(subject, serviceAccountFile, scopes)
+	return ServiceAccountApiInitializer()
+}
+
+// Oauth2ApiInitializer Used with a pre initiated oauth2 client to return service initiation parameters
+func Oauth2ApiInitializer() (context.Context, option.ClientOption) {
+	if Oauth2HttpClient == nil {
 		log.Fatalln("Client not initiated..")
 		return nil, nil
 	}
 	ctx := context.Background()
-	opt := option.WithHTTPClient(globalClient)
+	opt := option.WithHTTPClient(Oauth2HttpClient)
+	return ctx, opt
+}
+
+// ServiceAccountApiInitializer Used with a pre initiated oauth2 client to return service initiation parameters
+func ServiceAccountApiInitializer() (context.Context, option.ClientOption) {
+	if Oauth2HttpClient == nil {
+		log.Fatalln("Client not initiated..")
+		return nil, nil
+	}
+	ctx := context.Background()
+	opt := option.WithHTTPClient(ServiceAccountHttpClient)
 	return ctx, opt
 }
 
