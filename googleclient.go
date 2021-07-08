@@ -108,12 +108,21 @@ func GenerateToken(oauth2ConfigFile []byte, scopes []string) (*oauth2.Token, err
 	return token, nil
 }
 
+// GenerateAndWriteToken Used to generate authorized Oauth2 tokens and write them to a file
+func GenerateAndWriteToken(oauth2ConfigFile []byte, scopes []string, encrypt bool) ([]byte, error) {
+	token, err := GenerateToken(oauth2ConfigFile, scopes)
+	if err != nil {
+		return nil, err
+	}
+	return WriteToken(*token, "token.json", encrypt)
+}
+
 // WriteToken Used to save oauth2 token files
-func WriteToken(token oauth2.Token, newFileName string, encryptFile bool) (oauth2.Token, []byte, error) {
+func WriteToken(token oauth2.Token, newFileName string, encryptFile bool) ([]byte, error) {
 	tokenJson, err := json.Marshal(token)
 	if err != nil {
 		log.Println(err.Error())
-		return token, nil, nil
+		return nil, err
 	}
 
 	if encryptFile {
@@ -121,18 +130,18 @@ func WriteToken(token oauth2.Token, newFileName string, encryptFile bool) (oauth
 		err := os.WriteFile(tempFileName, tokenJson, os.ModePerm)
 		if err != nil {
 			log.Println(err.Error())
-			return token, nil, err
+			return nil, err
 		}
 
 		_, err = utils4go.EncryptFile(tempFileName, utils4go.GeneratePassword(), true)
 		if err != nil {
 			log.Println(err.Error())
-			return token, nil, err
+			return nil, err
 		}
-
-		return token, tokenJson, os.Rename(tempFileName, newFileName)
+		return tokenJson, os.Rename(tempFileName, newFileName)
 	}
-	return token, tokenJson, os.WriteFile(newFileName, tokenJson, os.ModePerm)
+
+	return tokenJson, os.WriteFile(newFileName, tokenJson, os.ModePerm)
 }
 
 // ParseToken Used to parse token file data into a oauth2 token
