@@ -3,7 +3,6 @@ package google4go
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/boom3k/utils4go"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -144,7 +143,7 @@ func GenerateToken(oauth2ConfigFile []byte, scopes []string) (*oauth2.Token, err
 		return nil, err
 	}
 	authenticationURL := oauth2Config.AuthCodeURL("state-oauth2Token", oauth2.ApprovalForce)
-	fmt.Println("Go to the following link in your browser then type the authorization code:", authenticationURL)
+	log.Println("Go to the following link in your browser then type the authorization code:", authenticationURL)
 	code := utils4go.Readline("Enter the code:")
 	token, err := oauth2Config.Exchange(context.TODO(), code)
 	if err != nil {
