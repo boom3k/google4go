@@ -82,6 +82,22 @@ func InitializeOauth2Client(clientSecretFile []byte, token *oauth2.Token, scopes
 	return oauth2.Client(context.Background(), token), nil
 }
 
+// InitializeOauth2ClientWithFiles Used for Oauth2 authorized clients with only files and scopes
+func InitializeOauth2ClientWithFiles(clientSecretFile, token []byte, scopes []string) (*http.Client, error) {
+	oauth2, err := google.ConfigFromJSON(clientSecretFile, scopes...)
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
+	oauth2Token, err := ParseToken(token)
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
+	Oauth2HttpClient = oauth2.Client(context.Background(), oauth2Token)
+	return oauth2.Client(context.Background(), oauth2Token), nil
+}
+
 // InitializeServiceAccountClient Used for service accounts with domain wide delegation
 func InitializeServiceAccountClient(subject string, serviceAccountFile []byte, scopes []string) (*http.Client, error) {
 	jwt, err := google.JWTConfigFromJSON(serviceAccountFile, scopes...)
@@ -107,7 +123,7 @@ func NewOauth2HTTPInitializer(clientSecretFile []byte, token *oauth2.Token, scop
 	return Oauth2ApiInitializer()
 }
 
-// NewServiceAccountHTTPInitializer NewServiceAccountHTTPInitializer Used to pass directly into a *.NewService() function
+// NewServiceAccountHTTPInitializer Used to pass directly into a *.NewService() function
 func NewServiceAccountHTTPInitializer(subject string, serviceAccountFile []byte, scopes []string) (context.Context, option.ClientOption) {
 	InitializeServiceAccountClient(subject, serviceAccountFile, scopes)
 	return ServiceAccountApiInitializer()
