@@ -7,6 +7,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -82,8 +83,24 @@ func InitializeOauth2Client(clientSecretFile []byte, token *oauth2.Token, scopes
 	return oauth2.Client(context.Background(), token), nil
 }
 
-// InitializeOauth2ClientWithFiles Used for Oauth2 authorized clients with only files and scopes
-func InitializeOauth2ClientWithFiles(clientSecretFile, token []byte, scopes []string) (*http.Client, error) {
+// InitializeOauth2ClientUsingFilepath Used for Oauth2 authorized clients using file paths
+func InitializeOauth2ClientUsingFilepath(clientSecretFilePath, tokenPath string, scopes []string) (*http.Client, error) {
+	clientSecretStream, err := ioutil.ReadFile(clientSecretFilePath)
+	if err != nil {
+		log.Println(err.Error())
+		panic(err)
+	}
+
+	tokenStream, err := ioutil.ReadFile(tokenPath)
+	if err != nil {
+		log.Println(err.Error())
+		panic(err)
+	}
+	return InitializeOauth2ClientUsingStream(clientSecretStream, tokenStream, scopes)
+}
+
+// InitializeOauth2ClientUsingStream Used for Oauth2 authorized clients with only files and scopes
+func InitializeOauth2ClientUsingStream(clientSecretFile, token []byte, scopes []string) (*http.Client, error) {
 	oauth2, err := google.ConfigFromJSON(clientSecretFile, scopes...)
 	if err != nil {
 		log.Println(err.Error())
@@ -100,6 +117,23 @@ func InitializeOauth2ClientWithFiles(clientSecretFile, token []byte, scopes []st
 
 // InitializeServiceAccountClient Used for service accounts with domain wide delegation
 func InitializeServiceAccountClient(subject string, serviceAccountFile []byte, scopes []string) (*http.Client, error) {
+	jwt, err := google.JWTConfigFromJSON(serviceAccountFile, scopes...)
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
+	jwt.Subject = subject
+	ServiceAccountHttpClient = jwt.Client(context.Background())
+	return jwt.Client(context.Background()), nil
+}
+
+// InitializeServiceAccountClientUsingFilePath Used for service accounts with domain wide delegation witha path to the service account key file
+func InitializeServiceAccountClientUsingFilePath(subject, serviceAccountFilePath string, scopes []string) (*http.Client, error) {
+	serviceAccountFile, err := ioutil.ReadFile(serviceAccountFilePath)
+	if err != nil {
+		log.Println(err.Error())
+		panic(err)
+	}
 	jwt, err := google.JWTConfigFromJSON(serviceAccountFile, scopes...)
 	if err != nil {
 		log.Println(err.Error())
@@ -209,6 +243,10 @@ func WriteToken(token oauth2.Token, newFileName string, encryptFile bool) ([]byt
 func ParseToken(tokenFileData []byte) (*oauth2.Token, error) {
 	token := &oauth2.Token{}
 	err := json.Unmarshal(tokenFileData, token)
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
 	return token, err
 }
 
@@ -216,6 +254,7 @@ func ParseToken(tokenFileData []byte) (*oauth2.Token, error) {
 func ParseTokenFromPath(filepath string) (*oauth2.Token, error) {
 	data, err := os.ReadFile(filepath)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 	return ParseToken(data)
