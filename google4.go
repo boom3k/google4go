@@ -124,6 +124,7 @@ func GetServiceAccountHttpClient(subject string, serviceAccountFile []byte, scop
 	}
 	jwt.Subject = subject
 	ServiceAccountHttpClient = jwt.Client(context.Background())
+	log.Printf("Acting as %v via --> [%s]", jwt.Subject, jwt.Email)
 	return jwt.Client(context.Background()), nil
 }
 
@@ -141,6 +142,7 @@ func GetServiceAccountHttpClientUsingFilePath(subject, serviceAccountFilePath st
 	}
 	jwt.Subject = subject
 	ServiceAccountHttpClient = jwt.Client(context.Background())
+	log.Printf("Acting as %v via --> [%s]", jwt.Subject, jwt.Email)
 	return jwt.Client(context.Background()), nil
 }
 
