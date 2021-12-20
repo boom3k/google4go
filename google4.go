@@ -273,6 +273,7 @@ type UserInfo struct {
 	Picture       string
 	Locale        string
 	Hd            string
+	Token         *oauth2.Token
 }
 
 func GetUserInfo(accessToken string) *UserInfo {
