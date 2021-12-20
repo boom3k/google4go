@@ -3,14 +3,15 @@ package google4go
 import (
 	"context"
 	"encoding/json"
-	"github.com/boom3k/utils4go"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
-	"google.golang.org/api/option"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/boom3k/utils4go"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/option"
 )
 
 var AdminScopes = []string{
@@ -287,14 +288,29 @@ func GetUserInfo(accessToken string) *UserInfo {
 	defer response.Body.Close()
 	m := make(map[string]interface{})
 	json.NewDecoder(response.Body).Decode(&m)
-	return &UserInfo{
-		ID:         m["id"].(string),
-		Email:      m["email"].(string),
-		Name:       m["name"].(string),
-		GivenName:  m["given_name"].(string),
-		FamilyName: m["family_name"].(string),
-		Picture:    m["picture"].(string),
-		Locale:     m["locale"].(string),
-		Hd:         m["hd"].(string),
+	userInfo := &UserInfo{}
+
+	for key, value := range m {
+		switch key {
+		case "id":
+			userInfo.ID = value.(string)
+		case "email":
+			userInfo.Email = value.(string)
+		case "name":
+			userInfo.Email = value.(string)
+		case "given_name":
+			userInfo.Email = value.(string)
+		case "picture":
+			userInfo.Email = value.(string)
+		case "locale":
+			userInfo.Email = value.(string)
+		case "hd":
+			userInfo.Email = value.(string)
+		case "family_name":
+			userInfo.FamilyName = value.(string)
+		case "verified_email":
+			userInfo.VerifiedEmail = value.(string)
+		}
 	}
+	return userInfo
 }
