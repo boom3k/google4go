@@ -262,3 +262,38 @@ func ParseTokenFromPath(filepath string) (*oauth2.Token, error) {
 	return ParseToken(data)
 
 }
+
+type UserInfo struct {
+	ID            string
+	Email         string
+	VerifiedEmail string
+	Name          string
+	GivenName     string
+	FamilyName    string
+	Picture       string
+	Locale        string
+	Hd            string
+}
+
+func GetUserInfo(accessToken string) *UserInfo {
+	url := "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=" + accessToken
+	httpClient := &http.Client{}
+	response, err := httpClient.Get(url)
+	if err != nil {
+		log.Println(err.Error())
+		panic(err)
+	}
+	defer response.Body.Close()
+	m := make(map[string]interface{})
+	json.NewDecoder(response.Body).Decode(&m)
+	return &UserInfo{
+		ID:         m["id"].(string),
+		Email:      m["email"].(string),
+		Name:       m["name"].(string),
+		GivenName:  m["given_name"].(string),
+		FamilyName: m["family_name"].(string),
+		Picture:    m["picture"].(string),
+		Locale:     m["locale"].(string),
+		Hd:         m["hd"].(string),
+	}
+}
