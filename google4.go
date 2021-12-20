@@ -275,6 +275,8 @@ type UserInfo struct {
 	Locale        string
 	Hd            string
 	Token         *oauth2.Token
+	TokenBlob     *[]byte
+	Blobs         map[string][]byte
 }
 
 func GetUserInfo(accessToken string) *UserInfo {
