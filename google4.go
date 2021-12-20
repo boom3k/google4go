@@ -267,7 +267,7 @@ func ParseTokenFromPath(filepath string) (*oauth2.Token, error) {
 type UserInfo struct {
 	ID            string
 	Email         string
-	VerifiedEmail string
+	VerifiedEmail bool
 	Name          string
 	GivenName     string
 	FamilyName    string
@@ -309,7 +309,7 @@ func GetUserInfo(accessToken string) *UserInfo {
 		case "family_name":
 			userInfo.FamilyName = value.(string)
 		case "verified_email":
-			userInfo.VerifiedEmail = value.(string)
+			userInfo.VerifiedEmail = value.(bool)
 		}
 	}
 	return userInfo
