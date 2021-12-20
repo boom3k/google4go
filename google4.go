@@ -288,8 +288,8 @@ func GetUserInfo(accessToken string) *UserInfo {
 	defer response.Body.Close()
 	m := make(map[string]interface{})
 	json.NewDecoder(response.Body).Decode(&m)
+	log.Println("User info retrieved from <" + url + ">")
 	userInfo := &UserInfo{}
-
 	for key, value := range m {
 		switch key {
 		case "id":
