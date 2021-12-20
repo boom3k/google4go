@@ -297,15 +297,15 @@ func GetUserInfo(accessToken string) *UserInfo {
 		case "email":
 			userInfo.Email = value.(string)
 		case "name":
-			userInfo.Email = value.(string)
+			userInfo.Name = value.(string)
 		case "given_name":
-			userInfo.Email = value.(string)
+			userInfo.GivenName = value.(string)
 		case "picture":
-			userInfo.Email = value.(string)
+			userInfo.Picture = value.(string)
 		case "locale":
-			userInfo.Email = value.(string)
+			userInfo.Locale = value.(string)
 		case "hd":
-			userInfo.Email = value.(string)
+			userInfo.Hd = value.(string)
 		case "family_name":
 			userInfo.FamilyName = value.(string)
 		case "verified_email":
