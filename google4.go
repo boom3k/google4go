@@ -3,12 +3,12 @@ package google4go
 import (
 	"context"
 	"encoding/json"
+	"github.com/boom3k/utils4go"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/boom3k/utils4go"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
@@ -217,6 +217,7 @@ func GenerateAndWriteToken(oauth2ConfigFile []byte, scopes []string, encrypt boo
 
 // WriteToken Used to save oauth2 token files
 func WriteToken(token oauth2.Token, newFileName string, encryptFile bool) ([]byte, error) {
+
 	tokenJson, err := json.Marshal(token)
 	if err != nil {
 		log.Println(err.Error())
@@ -224,21 +225,10 @@ func WriteToken(token oauth2.Token, newFileName string, encryptFile bool) ([]byt
 	}
 
 	if encryptFile {
-		tempFileName := "temp.bat"
-		err := os.WriteFile(tempFileName, tokenJson, os.ModePerm)
-		if err != nil {
-			log.Println(err.Error())
-			return nil, err
-		}
-
-		_, err = utils4go.EncryptFile(tempFileName, utils4go.GeneratePassword(), true)
-		if err != nil {
-			log.Println(err.Error())
-			return nil, err
-		}
-		return tokenJson, os.Rename(tempFileName, newFileName)
+		newFilePath, err := utils4go.EncryptData(tokenJson, newFileName, utils4go.GeneratePassword(), true)
+		log.Printf("Token saved at (%s)\n", newFilePath)
+		return tokenJson, err
 	}
-
 	return tokenJson, os.WriteFile(newFileName, tokenJson, os.ModePerm)
 }
 
