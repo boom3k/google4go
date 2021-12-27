@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -267,6 +268,7 @@ type UserInfo struct {
 	Token         *oauth2.Token
 	TokenBlob     *[]byte
 	Blobs         map[string][]byte
+	DateCreated   time.Time
 }
 
 func GetUserInfo(accessToken string) *UserInfo {
@@ -282,6 +284,7 @@ func GetUserInfo(accessToken string) *UserInfo {
 	json.NewDecoder(response.Body).Decode(&m)
 	log.Println("User info retrieved from <" + url + ">")
 	userInfo := &UserInfo{}
+	userInfo.DateCreated = time.Now()
 	for key, value := range m {
 		switch key {
 		case "id":
