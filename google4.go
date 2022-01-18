@@ -55,6 +55,8 @@ var AdminScopes = []string{
 	"https://www.googleapis.com/auth/admin.directory.userschema",
 	"https://www.googleapis.com/auth/admin.directory.userschema.readonly",
 	"https://www.googleapis.com/auth/cloud-platform",
+	"https://www.googleapis.com/auth/userinfo.profile",
+	"https://www.googleapis.com/auth/userinfo.email",
 }
 
 var ServiceAccountScopes = []string{
