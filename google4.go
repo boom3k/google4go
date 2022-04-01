@@ -228,8 +228,13 @@ func WriteToken(token oauth2.Token, newFileName string, encryptFile bool) ([]byt
 	}
 
 	if encryptFile {
-		newFilePath, err := utils4go.EncryptData(tokenJson, newFileName, utils4go.GeneratePassword(), true)
-		log.Printf("Token saved at (%s)\n", newFilePath)
+		encryptedData := utils4go.EncryptData(tokenJson, []byte(utils4go.GeneratePassword()))
+		err := ioutil.WriteFile(newFileName, encryptedData, os.ModePerm)
+		if err != nil {
+			log.Println(err.Error())
+			panic(err)
+		}
+		log.Printf("Token saved at (%s)\n", newFileName)
 		return tokenJson, err
 	}
 	return tokenJson, os.WriteFile(newFileName, tokenJson, os.ModePerm)
