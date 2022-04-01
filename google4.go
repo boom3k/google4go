@@ -235,7 +235,7 @@ func WriteToken(token oauth2.Token, newFileName string, encryptFile bool) ([]byt
 			panic(err)
 		}
 		log.Printf("Token saved at (%s)\n", newFileName)
-		return tokenJson, err
+		return encryptedData, err
 	}
 	return tokenJson, os.WriteFile(newFileName, tokenJson, os.ModePerm)
 }
